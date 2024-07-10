@@ -1,0 +1,216 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+body {
+  overflow-x: hidden;
+}
+
+
+.ver {
+  content: "";
+  width: 1px;
+  height: 5vh;
+  background-color: #cbc8c8;
+}
+
+.horz {
+  content: "";
+  width: 100vw;
+  height: 1px;
+  background-color: #cbc8c8;
+}
+
+.serach {
+  margin: 12px;
+}
+
+.active {
+  font-weight: 600;
+}
+
+input[type='email'],input[type='password'],input[type="text"],button[type="submit"] {
+  @apply border;
+  @apply m-2;
+  @apply p-2;
+  @apply h-10;
+  @apply rounded-2xl
+  
+}
+label {
+  @apply m-2;
+  @apply text-2xl;
+  display: flex;
+  gap: 5px;
+  align-items: center
+
+}
+
+input[type='email'],input[type='password'],input[type="text"] {
+  @apply p-5;
+  @apply w-full;
+}
+
+.buttons div {
+  padding: 16px;
+  width: max-content !important;
+  
+}
+
+.buttons {
+  scrollbar-width: none;
+  transition-duration: 3s;
+  behavior: smooth;
+}
+ 
+.arrows:hover {
+  background-color: #cbc8c8;
+  cursor: pointer;
+}
+
+
+
+
+
+
+/* --------------------- */
+
+
+.grid-div {
+  grid-template-columns: 68% 34%;
+
+}
+
+
+.booking-container {
+  width: 350px;
+  margin: 10px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.discounted-price {
+  font-size: 1.5em;
+  color: #d32f2f;
+}
+
+
+.cost-breakdown,
+.total {
+  margin-bottom: 20px;
+}
+
+/* .check-in,
+.check-out,
+.guests {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} */
+
+.check-in label,
+.check-out label,
+.guests label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.reserve-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.no-charge {
+  text-align: center;
+  font-size: 0.9em;
+  color: #888;
+  margin: 10px 0;
+}
+
+.cost-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.long-stay-discount {
+  color: #388e3c;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+
+.hor::after {
+  content: ' ';
+    height: 1px;
+    width: 100%;
+    display: block;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    background-color: #685b5b;
+}

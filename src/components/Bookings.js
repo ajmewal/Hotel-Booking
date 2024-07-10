@@ -1,0 +1,23 @@
+import React from 'react'
+import Account from './Account'
+
+function Bookings() {
+  return (
+    <div>
+      
+      <Account />
+    <div className='flex justify-center items-start mt-10 w-100 h-[100vh]'>
+            <div className="card  border border-gray-600 flex flex-col gap-5 p-2 w-[30vw] justify-between">
+                <img src="..." className="card-img-top" alt="..." />
+                <div className="card-body flex flex-col gap-2">
+                    <h5 className="card-title">hello</h5>
+                    <p className="card-text">hello</p>
+                    <a href="#" className="bg-amber-600 h-10 w-1/4 flex items-center justify-center rounded-3xl">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+
+export default Bookings
