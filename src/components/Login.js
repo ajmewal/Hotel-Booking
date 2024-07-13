@@ -1,6 +1,7 @@
 import React,{useState,useContext} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
 import UserContext from "../context/Users/UserContext";
+import Nav from './Nav';
 
 function Login() {
   const context = useContext(UserContext);
@@ -27,8 +28,13 @@ function Login() {
       console.log(data.status)
         const token = await data.json()
         setCookie('JwtToken', token.jwtData, { path: '/' })
-        navigate('/')
-        console.log("user not created");
+        if(sessionStorage.getItem('url')){
+          navigate(sessionStorage.getItem('url'))
+        }else{
+
+          navigate('/')
+        }
+        console.log("User Created");
      }
     }
 
@@ -39,7 +45,9 @@ function Login() {
   }
 
   return (
-    <div className='grow h-[100vh] flex flex-col items-center justify-center'>
+    <>
+    <Nav />
+    <div className='grow h-[80vh] flex flex-col items-center justify-center'>
       <h1 className='text-4xl text-center'>Login</h1>
       <form className='flex flex-col justify-center items-center my-20 mx-auto w-1/4 '>
         <input type="email" name='email' placeholder='JohnDoy@email.com' onChange={onChange} />
@@ -50,6 +58,7 @@ function Login() {
         </div>
       </form>
     </div>
+    </>
   )
 }
 

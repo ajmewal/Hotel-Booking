@@ -1,22 +1,23 @@
 // let scrol = document.querySelector(".buttons")
-let scrollLeft = document.querySelector(".left")
-let scrollRight = document.querySelector(".right")
 
 
 setTimeout(() => {
+    let scrollLeft = document.querySelector(".left")
+    let scrollRight = document.querySelector(".right")
     console.log(scrollLeft)
     console.log(scrollRight)
+    scrollRight.addEventListener("click",()=>{
+        console.log("hello")
+        // document.querySelector(".buttons").scroll({
+        //     left:50,
+        //     behavior:'smooth'
+        // })
+        document.querySelector(".buttons").scrollLeft+=100
+    })
+
+    
+    scrollLeft.addEventListener("click",()=>{
+        document.querySelector(".buttons").scrollLeft-=100
+        console.log("hello")
+    })
 }, 2000);
-
-// scrollRight.addEventListener("click",()=>{
-//     console.log("hello")
-//     document.querySelector(".buttons").scroll({
-//         left:50,
-//         behavior:'smooth'
-//     })
-// })
-
-// scrollLeft.addEventListener("click",()=>{
-//     console.log("hello")
-//     document.querySelector(".buttons").scrollLeft-=100
-// })

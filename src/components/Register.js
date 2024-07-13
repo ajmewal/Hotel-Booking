@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 
 
 
 function Register() {
   const [cred, setcred] = useState({ name: "", email: "", password: "" })
- 
+ const navigate = useNavigate()
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = await fetch('http://localhost:5000/api/auth/createUser', {
@@ -21,10 +21,7 @@ function Register() {
         console.log(data.status)
       } else {
       console.log(data.status)
-        // const token = await data.json()
-        // setCookie('JwtToken', token.jwtData, { path: '/' })
-        // navigate('/login', { state: { message: 'Account Created successfully ! Login with your credentials' } })
-        // console.log("user not created");
+        navigate('/login')
      }
     }
 

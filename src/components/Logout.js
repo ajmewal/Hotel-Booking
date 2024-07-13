@@ -12,9 +12,12 @@ function Logout() {
         try {
             
             setlogin("null")
+            sessionStorage.setItem("login",null)
             removeCookie('JwtToken', { path: '/' })
             navigate('/')
         } catch (error) {
+            removeCookie('JwtToken', { path: '/' })
+            sessionStorage.setItem("login",null)
             navigate('/login')
         }
     },[])

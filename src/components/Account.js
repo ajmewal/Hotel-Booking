@@ -11,10 +11,11 @@ import Nav from './Nav'
 function Account() {
   let location = useLocation();
   const context = useContext(UserContext);
-  const { user, login, cookies, setCookie, removeCookie } = context;
+  const { user, login, cookies, setCookie, removeCookie, fetchUser } = context;
   const navigate = useNavigate()
   useEffect(() => {
-    if (login === 'null') {
+    console.log(sessionStorage.getItem('login'))
+    if (sessionStorage.getItem('login') === "null") {
       navigate('/login')
     }
     

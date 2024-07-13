@@ -5,27 +5,27 @@ function Nav(props) {
 
     const context = useContext(UserContext);
 
-    const { user, login} = context;
+    const { user, login,fetchUser} = context;
     useEffect(() => {
-        console.log(login==="true"?"/account":'/login');
+        fetchUser()
+        console.log(sessionStorage.getItem('login')==="true"?"/account":'/login');
     }, [login])
-    console.log(props.path)
     
     
     return (
         <div className='flex flex-col justify-center  items-center'>
 
             <div className='p-4 flex justify-between w-[100%] items-center'>
-                <a href="" className="flex items-center w-[246px]">
+                <a href="/" className="flex items-center w-[246px]">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 w-8  h-8 -rotate-90">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                     </svg>
                     <span className='font-bold'>airbnc</span>
                 </a>
-                {props.path ==="/" ? (<div className='flex'>
-                    <Link to={'/stay'}><div className='px-5 py-2 active'>Stays</div></Link>
-                    <Link to={'/exprience'}><div className='px-5 py-2'>Experiences</div></Link>
-                    <Link to={'/online-exprience'}><div className='px-5 py-2'>Online Experiences</div></Link>
+                {props.path ==="/" || props.path ==="/stay" || props.path ==="/exprience" || props.path ==="/online-exprience"  ? (<div className='flex'>
+                    <Link to={'/stay'}><div className={`px-5 py-2 ${props.path==='/stay' || props.path==='/' ?"active":""}`}>Stays</div></Link>
+                    <Link to={'/exprience'}><div className={`px-5 py-2 ${props.path==='/exprience'?"active":""}`}>Experiences</div></Link>
+                    <Link to={'/online-exprience'}><div className={`px-5 py-2 ${props.path==='/online-exprience'?"active":""}`}>Online Experiences</div></Link>
                 </div>):(
                     <div className='flex serach border border-gray-300 rounded-full py-1 px-4 shadow-md shadow-gray-400 h-14 w-[40%] justify-between text-center items-center '>
                     <div className='px-3 w-[32%]'><input type="text" className='border-none' placeholder='Where'/></div>
@@ -57,12 +57,12 @@ function Nav(props) {
                         <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mx-2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
-                        <Link className='flex' to={`${login==="true"?"/account":'/login'}`}>
+                        <Link className='flex' to={`${sessionStorage.getItem('login')==="true"?"/account":'/login'}`}>
 
                         <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mx-2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
-                        <p>{`${login==='true'?`${user.name}`:""}`}</p>
+                        <p>{`${sessionStorage.getItem('login')==="true"?`${sessionStorage.name}`:""}`}</p>
                         </Link>
 
                     </div>
@@ -70,7 +70,7 @@ function Nav(props) {
 
             </div>
 
-            <div className={`${props.path ==="/" ?"flex":"hidden"}   serach border border-gray-300 rounded-full py-1 px-4 shadow-md shadow-gray-400 w-[60%] justify-between text-center items-center`} >
+            <div className={`${props.path ==="/" || props.path ==="/stay" || props.path ==="/exprience" || props.path ==="/online-exprience" ?"flex":"hidden"}   serach border border-gray-300 rounded-full py-1 px-4 shadow-md shadow-gray-400 w-[60%] justify-between text-center items-center`} >
                 <div className='px-3 w-[32%]'><input type="text" className='border-none' placeholder='Where'/></div>
                 <div className="ver  ml-3">
 

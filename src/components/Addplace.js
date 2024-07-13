@@ -95,7 +95,7 @@ function Addplace() {
 
     const addNewPlace = async () => {
         // ev.preventDefault();
-        const data = await fetch('http://localhost:5000/add-places', {
+        const data = await fetch('http://localhost:5000/api/places/add-places', {
             method: "POST",
             credentials: 'include',
             body: JSON.stringify({

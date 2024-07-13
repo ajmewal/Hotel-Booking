@@ -1,7 +1,6 @@
-const {mongoose,ObjectId} = require("mongoose")
+const { mongoose, ObjectId ,MongoClient } = require("mongoose")
 
 const mongoUrl = "mongodb://localhost:27017/hotelBooking"
-
 
 const connectMongoose =   async ()=>{
     await mongoose.connect(mongoUrl)

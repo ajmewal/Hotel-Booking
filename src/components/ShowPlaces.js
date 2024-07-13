@@ -4,7 +4,7 @@ function Showplaces(props) {
 
     const deletePlace = async (place) => {
         console.log(place._id)
-        fetch('http://localhost:5000/deletePlace', {
+        fetch('http://localhost:5000/api/places/deletePlace', {
             method: "POST",
             headers: { 'Content-type': "application/json" },
             body: JSON.stringify({ links: place._id })

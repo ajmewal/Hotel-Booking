@@ -90,11 +90,11 @@ label {
 input[type='email'],input[type='password'],input[type="text"] {
   @apply p-5;
   @apply w-full;
+  @apply outline-none;
 }
 
 .buttons div {
-  padding: 16px;
-  width: max-content !important;
+  margin: 8px;
   
 }
 

@@ -1,62 +1,52 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { useParams, useLocation, Link, useSearchParams } from 'react-router-dom'
+import { useParams, useLocation,useNavigate, Link, useSearchParams } from 'react-router-dom'
+import Nav from './Nav'
 
 
 
 
 
 function PlaceReserve() {
-
+    const navigation = useNavigate()
     const [Owner, setOwner] = useState()
     const [Place, setPlace] = useState()
     const [Date1, setDate1] = useState('')
     const [Date2, setDate2] = useState('')
-    const [guest, setguest] = useState(0)
+    const [adults, setadults] = useState(0)
+    const [pets, setpets] = useState(0)
+    const [children, setchildren] = useState(0)
+    const [infants, setinfants] = useState(0)
+    const [totalPrice, settotalPrice] = useState(0)
+    const [totalAfterTax, settotalAfterTax] = useState(0)
+
     const [dateDifference, setdateDifference] = useState('')
     const [startDate, setstartDate] = useState('')
     const [endDate, setendDate] = useState('')
 
     const [params] = useSearchParams()
-
+    
     const { id } = useParams()
     useEffect(() => {
-        if (params.get('checkin') && params.get('checkout') && params.get('guests') ) {
+        if (params.get('checkin') && params.get('checkout') && params.get('adults') && params.get('children') && params.get('infants')&& params.get('pets') ) {
+    
+            const adult = params.get('adults')
+            const childrens =  params.get('children')
+            const infant =  params.get('infants')
+            const pet =  params.get('pets') 
+            const date1 = params.get('checkin')
+            const date2 = params.get('checkout')
 
-        setDate1(Date1 => { return params.get('checkin') })
-        setDate2(Date2 => { return params.get('checkout') })
-        setguest(geust => {
+            setDate1(date1)
+            setDate2(date2)
+            setadults(adult)
+            setchildren(childrens)
+            setinfants(infant)
+            setpets(pet)
+            calculateDateDifference(date1,date2);
 
-            calculateDateDifference();
-            setdateDifference(dateDifference => {
-
-
-                const firstDate = new Date(Date1);
-                const secondDate = new Date(Date2);
-                
-                if (!Date1 || !Date2 || isNaN(firstDate) || isNaN(secondDate)) {
-                    // setDifference("Please select valid dates.");
-                    return;
-                }
-                setstartDate(startDate => { return String(firstDate.getDate()).padStart(2, 0) })
-                setendDate(endDate => { return String(secondDate.getDate()).padStart(2, 0) })
-
-
-                const timeDifference = Math.abs(secondDate - firstDate);
-                const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-                console.log(dayDifference)
-                return dayDifference;
-
-            })
-            return params.get('guests');
-        })
-    }
-
-
-
-
-        fetch('http://localhost:5000/place/' + id, {
-            method: "GET",
-        }).then(async response => {
+            fetch('http://localhost:5000/api/places/place/' + id, {
+                method: "GET",
+            }).then(async response => {
             const d = await response.json();
             setPlace(d)
             const owner = d.owner
@@ -67,19 +57,34 @@ function PlaceReserve() {
             }).then(async response => {
                 const d = await response.json();
                 setOwner(d)
-                console.log(d)
             })
-        })
+        }) 
+        
+    }
+
+
+
 
 
     }, [])
 
 
-    const calculateDateDifference = () => {
-        const firstDate = new Date(Date1);
-        const secondDate = new Date(Date2);
+    useEffect(() => {
+        if (Place && dateDifference > 0) {
+            const price = Place.price;
+            const totalPrice = price * dateDifference;
+            const totalAfterTax = (totalPrice - ((totalPrice * 20) / 100)) + ((totalPrice * 18) / 100);
 
-        if (!Date1 || !Date2 || isNaN(firstDate) || isNaN(secondDate)) {
+            settotalPrice(totalPrice);
+            settotalAfterTax(totalAfterTax);
+        }
+    }, [Place, dateDifference]);
+
+    const calculateDateDifference = (date1,date2) => {
+        const firstDate = new Date(date1);
+        const secondDate = new Date(date2); 
+
+        if (!date1 || !date2 || isNaN(firstDate) || isNaN(secondDate)) {
             // setDifference("Please select valid dates.");
             return;
         }
@@ -89,12 +94,35 @@ function PlaceReserve() {
 
         const timeDifference = Math.abs(secondDate - firstDate);
         const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-
         setdateDifference(dayDifference);
-        return
+        return dayDifference
     };
 
+    const handleCLick = async ()=>{
+
+        fetch('http://localhost:5000/api/bookings/bookings', {
+            method: "POST",
+            credentials:"include",
+            headers: { 'Content-type': "application/json" },
+            body: JSON.stringify({ 
+                place_id: id,
+                checkIn: Date1,
+                checkOut: Date2,
+                adults: adults,
+                children: children,
+                infants: infants,
+                pets: pets,
+                payment: totalAfterTax
+             })
+        }).then(async response => {
+            const d = await response.json();
+            console.log(d)
+        })
+    }
+
+
     return (<>
+        <Nav />
         {Place && (
             <div className="flex flex-col lg:flex-row justify-center w-[90vw] items-center m-auto lg:items-start bg-gray-100 p-6">
                 <div className="w-full lg:w-2/3 bg-white p-6 rounded-lg shadow-lg mb-6 lg:mb-0 lg:mr-6">
@@ -113,8 +141,8 @@ function PlaceReserve() {
                         <div className="flex justify-between items-center mt-2">
                             <div>
                                 <p className="text-sm">Guests</p>
-                                {guest && (
-                                    <p className="font-medium">{guest} guest</p>
+                                {adults && (
+                                    <p className="font-medium">{adults} guest</p>
 
                                 )}
                             </div>
@@ -125,7 +153,7 @@ function PlaceReserve() {
                         <h2 className="text-xl font-semibold">Pay with</h2>
                         <div className="mt-2">
                             <label className="flex items-center mb-2">
-                                <input type="radio" name="payment" className="mr-2" checked />
+                                <input type="radio" name="payment" className="mr-2" defaultChecked />
                                 Credit or debit card
                             </label>
                             <input type="text" placeholder="Card number" className="w-full border p-2 rounded mb-2" />
@@ -155,7 +183,7 @@ function PlaceReserve() {
                         </ul>
                     </div>
                     <div>
-                        <button className="w-full bg-pink-600 text-white py-2 rounded">Confirm and pay</button>
+                        <button onClick={handleCLick} className="w-full bg-pink-600 text-white py-2 rounded">Confirm and pay</button>
                     </div>
                 </div>
 
@@ -186,7 +214,7 @@ function PlaceReserve() {
                             </div>
                             <div className="border-t pt-4 mt-4 flex justify-between items-center">
                                 <p className="text-lg font-bold">Total (INR)</p>
-                                <p className="text-lg font-bold">₹{(Place.price * dateDifference) * (80 / 100) + (Place.price * dateDifference) * (18 / 100)}</p>
+                                <p className="text-lg font-bold">₹{totalAfterTax}</p>
                             </div>
                         </div>
                     )}

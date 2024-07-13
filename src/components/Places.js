@@ -6,12 +6,12 @@ import Account from './Account';
 
 
 function Accomodations() {
-  const { action,id } = useParams();
+  const { action} = useParams();
   const [Place, setPlace] = useState({})
 
   useEffect(() => {
     const a =  async () => {
-      const data = await fetch('http://localhost:5000/get-places', {
+      const data = await fetch('http://localhost:5000/api/places/get-places', {
         credentials: "include"
       })
       setPlace(await data.json())

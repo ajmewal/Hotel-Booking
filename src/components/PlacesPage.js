@@ -1,25 +1,26 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { useParams, useLocation, Link,useSearchParams } from 'react-router-dom'
+import { useParams, useLocation, Link, useSearchParams, useNavigate } from 'react-router-dom'
 import Nav from './Nav'
 import con from '../context/Users/UserContext'
 
 function PlacesPage() {
- 
-  const { id} = useParams()
-  // console.log(checkIn,checkOut)
-  const context = useContext(con)
-  const {setdate1,setdate2}  = context
+
+  const { id } = useParams()
+  const d1 = useRef(null)
+  const d2 = useRef(null)
+  const navigate = useNavigate()
   const [Place, setPlace] = useState()
   const [clickImg, setclickImg] = useState()
   const ref = useRef()
   const [currentDate, setcurrentDate] = useState('')
   const [imageCounter, setImageCounter] = useState(0)
   const [checkoutDate, setCheckoutDate] = useState('');
-  const [Date1, setDate1] = useState('')  
-  const [Date2, setDate2] = useState('')  
-  const [dateDifference,setdateDifference] = useState('')
+  const [dateDifference, setdateDifference] = useState('')
   const location = useLocation();
   const [Owner, setOwner] = useState()
+  const [hidden, sethidden] = useState(true)
+  const [totalPrice, settotalPrice] = useState(0)
+
   const formatDateForInput = (date) => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
@@ -27,28 +28,26 @@ function PlacesPage() {
     return `${year}-${month}-${day}`;
   };
 
-  const currentDates = (e)=>{
-    
-      const date = new Date(e.target.value)
-      setcurrentDate(formatDateForInput(date))
-      setDate1(formatDateForInput(date))
-      const checkout = new Date(date);
-      checkout.setDate(date.getDate() + 5);
-      const formattedCheckoutDate = formatDateForInput(checkout);
-      console.log(checkoutDate)
-      setCheckoutDate(formattedCheckoutDate)
-      setDate2(formattedCheckoutDate)
-      setTimeout(() => {
-        
-        calculateDateDifference()    
-  }, 100);
+  const currentDates = (e) => {
+    const date = new Date(d1.current.value)
+    setcurrentDate(formatDateForInput(date))
+
+    const checkout = new Date(d2.current.value);
+    const formattedCheckoutDate = formatDateForInput(checkout);
+
+    setCheckoutDate(formattedCheckoutDate)
+
+    setTimeout(() => {
+
+      calculateDateDifference()
+    }, 100);
   }
 
   const calculateDateDifference = () => {
-    const firstDate = new Date(Date1);
-    const secondDate = new Date(Date2);
+    const firstDate = new Date(d1.current.value);
+    const secondDate = new Date(d2.current.value);
 
-    if (!Date1 || !Date2 || isNaN(firstDate) || isNaN(secondDate)) {
+    if (!d1.current.value || !d2.current.value || isNaN(firstDate) || isNaN(secondDate)) {
       // setDifference("Please select valid dates.");
       return;
     }
@@ -56,22 +55,27 @@ function PlacesPage() {
     const timeDifference = Math.abs(secondDate - firstDate);
     const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
-    setdateDifference(dayDifference );
-    console.log(dateDifference)
+    setdateDifference(dayDifference);
+    settotalPrice(((Place.price*80)/100) * dayDifference)
   };
 
 
   useEffect(() => {
-    // setcurrentDate(format(String(date.getDate()).padStart(2,0)+'-'+String(date.getMonth()).padStart(2,0)+'-'+String(date.getFullYear())))
+
     let date = new Date()
     const checkout = new Date(date);
     setcurrentDate(formatDateForInput(date))
-    setDate1(formatDateForInput(date))
     checkout.setDate(date.getDate() + 5);
     const formattedCheckoutDate = formatDateForInput(checkout);
-    setDate2(formattedCheckoutDate)
     setCheckoutDate(formattedCheckoutDate);
-    fetch('http://localhost:5000/place/' + id, {
+
+    if (d1.current && d2.current) {
+      // calculateDateDifference();
+      calculateDateDifference()
+    }
+
+
+    fetch('http://localhost:5000/api/places/place/' + id, {
       method: "GET",
     }).then(async response => {
       const d = await response.json();
@@ -84,13 +88,21 @@ function PlacesPage() {
       }).then(async response => {
         const d = await response.json();
         setOwner(d)
-        console.log(d)
 
       })
     })
 
 
   }, [])
+
+
+  useEffect(() => {
+    if (d1.current && d2.current) {
+      // calculateDateDifference()
+      currentDates()
+    }
+
+  }, [d1.current])
 
 
 
@@ -154,12 +166,33 @@ function PlacesPage() {
         ref.current.src = Place.photos[test]
         return test
 
-        // console.log(ref)
       }, 100);
     })
 
 
   }
+
+  const handleClick = () => {
+    console.log(sessionStorage.getItem('login'))
+    if(sessionStorage.getItem('login')==="null"){
+      sessionStorage.setItem("url",`/places/reserve/${Place._id}?checkin=${currentDate}&checkout=${checkoutDate}&adults=${adults}&children=${children}&infants=${infants}&pets=${pets}`)
+      navigate('/login')
+  }else{
+
+    navigate(`/places/reserve/${Place._id}?checkin=${currentDate}&checkout=${checkoutDate}&adults=${adults}&children=${children}&infants=${infants}&pets=${pets}`)
+  }
+  }
+
+
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
+  const [pets, setPets] = useState(0);
+
+  const increment = (setter, value) => setter(value + 1);
+  const decrement = (setter, value) => {
+    if (value > 0) setter(value - 1);
+  };
 
 
   return (
@@ -326,54 +359,159 @@ function PlacesPage() {
 
                   <div className="booking-container">
                     <div className="price">
-                      <span className="original-price">₩{Place.price}</span>
-                      <span className="discounted-price">₩{Place.price * (80 / 100)}</span> night
+                      <div className='flex gap-3 items-center'>
+
+                        <span className="original-price">₩{Place.price}</span>
+                        <span className="discounted-price">₩{Place.price * (80 / 100)}</span>
+                      </div>
+                      night
                     </div>
                     <div className='border-2 rounded-lg border-gray-800'>
                       <div className="dates border-b-2   border-gray-800 flex">
                         <div className="check-in p-2 border-r-2 border-gray-800 w-1/2 inline-block ">
                           <div className='font-bold'>CHECK-IN</div>
-                          {currentDate && (<input type="date" name="" id="" defaultValue={currentDate} onChange={currentDates} />)}
+                          {currentDate && (<input ref={d1} type="date" name="" id="" value={currentDate} onChange={e => { currentDates() }} />)}
                         </div>
-                        
+
                         <div className="check-out p-2 inline-block w-1/2 ">
                           <div className='font-bold'>CHECKOUT</div>
                           {checkoutDate && (
-                          <input type="date" name="" id="" value={checkoutDate} onChange={e=>{e.target.value=checkoutDate}} />
+                            <input ref={d2} type="date" name="" id="" value={checkoutDate} onChange={e => { currentDates() }} />
                           )}
                         </div>
                       </div>
-                      <div className="guests p-2 flex justify-between ">
+                      <div onClick={e => { hidden === true ? sethidden(null) : sethidden(true) }} className="guests p-2 cursor-pointer flex justify-between items-center ">
                         <div>
                           <div className='font-bold'>GUESTS</div>
-                          <div>1 guest</div>
+                          <div>{adults + children} guests</div>
                         </div>
-                        <select className=''>
+                        <div className='relative'>
+                          {/* --------- */}
+                          <div className={`${hidden === true ? "block" : "hidden"}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </div>
+                          <div className={`${hidden === true ? "hidden" : "block"}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                            </svg>
 
-                          <option></option>
-                          <option>1 guest</option>
-                          <option>1 guest</option>
-                          <option>1 guest</option>
-                        </select>
+                          </div>
+
+                          <div onClick={e => { e.stopPropagation() }} className={`border absolute ${hidden === true ? "hidden" : "block"}  right-0 top-12 p-4 w-72 bg-white shadow-lg rounded`}>
+                            <div className="flex justify-between items-center mb-4">
+                              <div>
+                                <p className="text-lg font-medium">Adults</p>
+                                <p className="text-sm text-gray-500">Age 13+</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => decrement(setAdults, adults)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  -
+                                </button>
+                                <span className="text-lg">{adults}</span>
+                                <button
+                                  onClick={() => increment(setAdults, adults)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center mb-4">
+                              <div>
+                                <p className="text-lg font-medium">Children</p>
+                                <p className="text-sm text-gray-500">Ages 2–12</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => decrement(setChildren, children)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  -
+                                </button>
+                                <span className="text-lg">{children}</span>
+                                <button
+                                  onClick={() => increment(setChildren, children)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center mb-4">
+                              <div>
+                                <p className="text-lg font-medium">Infants</p>
+                                <p className="text-sm text-gray-500">Under 2</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => decrement(setInfants, infants)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  -
+                                </button>
+                                <span className="text-lg">{infants}</span>
+                                <button
+                                  onClick={() => increment(setInfants, infants)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center mb-4">
+                              <div>
+                                <p className="text-lg font-medium">Pets</p>
+                                <p className="text-sm text-gray-500">Bringing a service animal?</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => decrement(setPets, pets)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  -
+                                </button>
+                                <span className="text-lg">{pets}</span>
+                                <button
+                                  onClick={() => increment(setPets, pets)}
+                                  className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-gray-500 mb-4">This place has a maximum of 2 guests, not including infants. Pets aren’t allowed.</p>
+                            <button onClick={() => { sethidden(true) }} className="w-full py-2 bg-blue-500 text-white rounded">Close</button>
+                          </div>
+                          {/* --------- */}
+                        </div>
                       </div>
                     </div>
 
-                    <Link to={'/places/reserve/'+Place._id}><button onClick={()=>{}} className="reserve-btn mt-5">Reserve</button></Link>
+                    <button onClick={() => { handleClick() }} className="reserve-btn mt-5">Reserve</button>
                     <p className="no-charge">You won't be charged yet</p>
                     <div className="cost-breakdown">
                       <div>
-                        <span>₩{Place.price} x {dateDifference} nights</span>
-                        <span>₩{Place.price * 5}</span>
+                        <span>₩{Place.price * (80 / 100)} x {dateDifference} nights</span>
+                        <span>₩{totalPrice}</span>
                       </div>
                       <div className="long-stay-discount">
                         <span>Long stay discount</span>
-                        <span>-₩{Place.price * (20 / 100)}</span>
+                        <span>-₩{totalPrice * (20 / 100)}</span>
                       </div>
                     </div>
                     <div className='hor' ></div>
                     <div className="total">
                       <span>Total before taxes</span>
-                      <span>₩{Place.price * 5}</span>
+                      <span>₩{totalPrice - totalPrice * (20 / 100)}</span>
                     </div>
                   </div>
 

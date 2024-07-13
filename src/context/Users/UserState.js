@@ -17,19 +17,25 @@ function UserState(props) {
 
       const data = await fetch('http://localhost:5000/api/auth/check', {
         method: 'GET',
-        credentials: 'include',
-      })
+        credentials: 'include'
+      }).catch(err=>{const mute=err})
       if (!data.ok) {
         setlogin("null")
+        sessionStorage.setItem('login',null)
       } else {
         
         setlogin("true")
+        sessionStorage.setItem('login',true)
+        const users = await data.json();
+        sessionStorage.setItem('id',users._id)
+        sessionStorage.setItem('email',users.email)
+        sessionStorage.setItem('name',users.name)
+        // setuser({id:users._id,email:users.email,name:users.name})
       }
-      const users = await data.json();
-      setuser({id:users._id,email:users.email,name:users.name})
       // console.log(users)
     } catch (error) {
       setlogin("null")
+      sessionStorage.setItem('login',null)
     }
 
   }
